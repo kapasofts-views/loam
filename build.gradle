@@ -13,9 +13,9 @@ apply plugin: 'js'
 
 
 
-def user="mega_user"
-def pass="password1"
-def db="mega_db"
+def user="boiler_user"
+def pass="38394815"
+def db="drup_boiler_db"
 def today = new Date().format('MMMdd_yyyy')
 
 task backupFromShell(type:Exec) {
