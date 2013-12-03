@@ -1,7 +1,14 @@
-name = Builder Theme
+name = builder
 description = Builder Theme that inherits from Bootstrap 3.x.
 core = 7.x
 base theme = bootstrap
+
+;Depends
+;https://drupal.org/project/entityreference
+;https://drupal.org/project/image_url_formatter
+;views
+;blog
+;context
 
 ; Regions
 regions[navigation]     = 'Navigation'
@@ -12,17 +19,53 @@ regions[content]        = 'Content'
 regions[sidebar_first]  = 'Primary'
 regions[sidebar_second] = 'Secondary'
 regions[footer]         = 'Footer'
+regions[footer_top] = 'Footer top'
+regions[footer_middle] = 'Footer Middle'
+regions[footer_bottom] = 'Footer Bottom'
 regions[page_top]       = 'Page top'
 regions[page_bottom]    = 'Page bottom'
+regions[row_zero]      = 'Row Zero'
+regions[row_first]    = 'Row First'
+regions[row_second]    = 'Row Second'
+regions[square_top_left]    = 'Square Left Top'
+regions[square_bottom_left]    = 'Square Left Bottom'
+regions[square_top_right]    = 'Square Right Top'
+regions[square_bottom_right]    = 'Square Right Bottom'
+regions[about_right_bottom]    = 'About Us Right Bottom Corner'
+
+
+;regions[row_zero_home_two] = 'Home 2 Layout Zero Row'
+;regions[row_one_home_two] = 'Home 2 Layout First Row'
+;regions[row_two_home_two] = 'Home 2 Layout Second Row'
 
 ; Stylesheets
-stylesheets[all][] = bootstrap/css/bootstrap.min.css
-stylesheets[all][] = bootstrap/css/bootstrap-theme.min.css
+;stylesheets[all][] = bootstrap/css/bootstrap.min.css
+;stylesheets[all][] = bootstrap/css/bootstrap-theme.min.css
 ;stylesheets[all][] = bootswatch/amelia/bootstrap.min.css
-stylesheets[all][] = css/style.css
+
+;Builder 2.2 Styles
+stylesheets[all][] = css/bootstrap.css
+stylesheets[all][] = css/bootstrap-responsive.css
+;stylesheets[all][] = css/wide_layout.css
+;stylesheets[all][] = css/docs.css
+;stylesheets[all][] = css/options.css
+;stylesheets[all][] = css/builder.css
+;stylesheets[all][] = js/google-code-prettify/prettify.css
+;stylesheets[screen][] = nivo/nivo-slider.css
+;stylesheets[screen][] = css/prettyPhoto.css
+;stylesheets[screen][] = css/style.css
+
+;Excluded CSS
+;exclude[css][] = 'modules/date/date_api/data.css'
+;exclude[css][] = 'modules/field/theme/field.css'
+;exclude[css][] = 'modules/logintoboggan/logintoboggan.css'
+;exclude[css][] = 'modules/views/css/view.css'
 
 ;JavaScript
-scripts[] = 'bootstrap/js/bootstrap.min.js'
+;scripts[] = 'bootstrap/js/bootstrap.min.js'
+
+;JavaScript for Builder 2.2.x
+scripts[] = 'js/bootstrap.min.js'
 
 ;**********************************
 ; METHOD 1: Bootstrap Source Files

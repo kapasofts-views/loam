@@ -1,0 +1,8 @@
+name = builder_theme
+description = custom module for builder theme to provide the functionality
+core = 7.x
+version = 7.x-0.1-dev
+package = designssquare.com
+files[] = builder_theme.module
+;dependencies = module1
+;configure = admin/config/moduleName ;this adds configuration button next to module name in modules list

@@ -1,0 +1,922 @@
+<?php
+
+function builder_theme_block_info(){
+    $blocks = array();
+    $blocks['twitter_feed'] = array(
+        'info' => t('Builder Theme: Twitter Feed'),
+    );
+    $blocks['footer_logo'] = array(
+        'info' => t('Builder Theme: Footer Logo'),
+    );
+    $blocks['footer_company'] = array(
+        'info' => t('Builder Theme: Company'),
+    );
+    $blocks['contact_info'] = array(
+        'info' => t('Builder Theme: Contact Info'),
+    );
+    $blocks['copy_rights'] = array(
+        'info' => t('Builder Theme: Copy Rights'),
+    );
+    $blocks['welcome'] = array(
+        'info' => t('Builder Theme: Welcome'),
+    );
+    $blocks['footer_menu'] = array(
+        'info' => t('Builder Theme: Footer Menu'),
+    );
+    $blocks['about'] = array(
+        'info' => t('Builder Theme: About'),
+    );
+    $blocks['full_slider'] = array(
+        'info' => t('Builder Theme: Full Slider'),
+    );
+    $blocks['catchy_phrase'] = array(
+        'info' => t('Builder Theme: Catchy Phrase'),
+//        'cache' => DRUPAL_NO_CACHE,
+    );
+    $blocks['call_for_action'] = array(
+        'info' => t('Builder Theme: Call For Action'),
+//        'cache' => DRUPAL_NO_CACHE,
+    );
+    $blocks['pay_attention'] = array(
+        'info' => t('Builder Theme: Pay Attention'),
+//        'cache' => DRUPAL_NO_CACHE,
+    );
+    return $blocks;
+}
+
+function builder_theme_block_view($delta = ''){
+    $blocks = array();
+    switch($delta){
+        case 'twitter_feed':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--twitter-feed.tpl.php', twitter_feed_config());
+            break;
+        case 'footer_logo':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--footer-logo.tpl.php', footer_logo_config());
+            break;
+        case 'footer_company':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--company.tpl.php', company_config());
+            break;
+        case 'contact_info':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--contact-info.tpl.php', contact_info_config());
+             break;
+        case 'copy_rights':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--copy-rights.tpl.php', copy_rights_config());
+            break;
+        case 'welcome':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--welcome.tpl.php', welcome_config());
+            break;
+        case 'footer_menu':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--footer-menu.tpl.php', footer_menu_config());
+            break;
+        case 'about':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--about.tpl.php', about_config());
+            break;
+        case 'full_slider':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--full-slider.tpl.php', full_slider_config());
+            break;
+        case 'catchy_phrase':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--catchy-phrase.tpl.php', catchy_phrase_config());
+            break;
+        case 'call_for_action':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--call-for-action.tpl.php', call_for_action_config());
+            break;
+        case 'pay_attention':
+            $blocks['subject'] = t('');
+            $blocks['content'] = theme_render_template(drupal_get_path('module', 'builder_theme').'/inc/block--pay-attention.tpl.php', pay_attention_config());
+            break;
+    }
+    return $blocks;
+}
+
+function pay_attention_config(){
+    return array(
+        'title' => variable_get('pay_attention_title'),
+        'call_action' => variable_get('pay_attention_call_action'),
+        'content' => variable_get('pay_attention_content'),
+    );
+}
+
+function call_for_action_config(){
+    return array(
+        'title' => variable_get('call_action_title'),
+        'content' => variable_get('call_action_content'),
+        'button' => variable_get('call_action_button'),
+        'url' => variable_get('call_action_url'),
+    );
+}
+
+function catchy_phrase_config(){
+    return array(
+        'phrase' => variable_get('catchy_phrase'),
+    );
+}
+
+function full_slider_config(){
+    $nidFrames = db_select('node', 'n')
+        ->fields('n', array('nid'))
+        ->fields('n', array('type'))
+        ->condition('n.type', 'slider_frame')
+        ->execute()
+        ->fetchCol();
+    $frames = array();
+    foreach($nidFrames as $key => $nid){
+        $frames[$nid] = array();
+        $framesIns = node_load($nid);
+        $frames[$nid]['data-transition'] = $framesIns->field_data_transition[LANGUAGE_NONE][0]['value'];
+        $frames[$nid]['data-masterspeed'] = $framesIns->field_data_masterspeed[LANGUAGE_NONE][0]['value'];
+        $frames[$nid]['data-slotamount'] = $framesIns->field_data_slotamount[LANGUAGE_NONE][0]['value'];
+        $frames[$nid]['bg-img'] = url('sites/default/files/'.file_uri_target($framesIns->field_default_bg_img[LANGUAGE_NONE][0]['uri']), array('absolute'=>true));
+        $frames[$nid]['weight'] = $framesIns->field_frame_weight[LANGUAGE_NONE][0]['value'];
+
+        $frames[$nid]['elements'] = array();
+        $nidElements = db_select('field_data_field_slider_frame', 'n')
+            ->fields('n', array('entity_id'))
+            ->fields('n', array('field_slider_frame_target_id'))
+            ->condition('n.field_slider_frame_target_id', $nid)
+            ->execute()
+            ->fetchCol();
+        $nidElemntsIns = node_load_multiple($nidElements);
+        foreach($nidElemntsIns as $key => $element){
+            $frames[$nid]['elements'][$key] = array();
+            $frames[$nid]['elements'][$key]['class'] = $element->field_class[LANGUAGE_NONE][0]['value'];
+            $frames[$nid]['elements'][$key]['data-x'] = $element->field_x_position[LANGUAGE_NONE][0]['value'];
+            $frames[$nid]['elements'][$key]['data-y'] = $element->field_y_position[LANGUAGE_NONE][0]['value'];
+            $frames[$nid]['elements'][$key]['data-speed'] = $element->field_speed[LANGUAGE_NONE][0]['value'];
+            $frames[$nid]['elements'][$key]['data-start'] = $element->field_start[LANGUAGE_NONE][0]['value'];
+            $frames[$nid]['elements'][$key]['data-easing'] = $element->field_easing[LANGUAGE_NONE][0]['value'];
+            $frames[$nid]['elements'][$key]['content'] = '';
+            if(!empty($element->field_element_text[LANGUAGE_NONE][0]['value'])){
+                $frames[$nid]['elements'][$key]['content'] = $element->field_element_text[LANGUAGE_NONE][0]['value'];
+            }elseif(!empty($element->field_element_img[LANGUAGE_NONE][0]['uri'])){
+                $frames[$nid]['elements'][$key]['content'] = '<img src="'.url('sites/default/files/'.file_uri_target($element->field_element_img[LANGUAGE_NONE][0]['uri']), array('absolute'=>true)).'" >';
+            }elseif(!empty($element->field_element_video[LANGUAGE_NONE][0]['value'])){
+                $frames[$nid]['elements'][$key]['content'] = '<iframe src="http://player.vimeo.com/video/'.$element->field_element_video[LANGUAGE_NONE][0]['value'].'?title=0&amp;byline=0&amp;portrait=0" width="420" height="314" style="width:420px;height:314px;"></iframe>';
+            }
+        }
+    }
+
+    return array(
+      'frames' => $frames,
+    );
+}
+
+function company_config(){
+    return array(
+        'title' => variable_get('builder_company_title'),
+        'description' =>  variable_get('builder_company_description'),
+    );
+}
+
+function twitter_feed_config(){
+    return array(
+        'twitter_invite' => variable_get('builder_twitter_invite'),
+        'twitter_title' => variable_get('builder_twitter_title'),
+    );
+}
+
+function contact_info_config(){
+    return array(
+        'title' => variable_get('contact_info_title'),
+        'phone' => variable_get('contact_info_phone'),
+        'email' => variable_get('contact_info_email'),
+        'address' => variable_get('contact_info_address'),
+    );
+}
+
+function copy_rights_config(){
+    return array(
+        'message' =>  variable_get('copy_rights_message'),
+    );
+}
+
+function footer_menu_config(){
+    $links = menu_load_links('menu-footer-menu');
+    $links_final = array();
+    foreach($links as $key => $link){
+        $t_link = array();
+        $t_link['title'] = $link['link_title'];
+        $t_link['url'] = drupal_get_path_alias($link['link_path']);
+        $links_final[] = $t_link;
+    }
+
+    return array(
+        'links' =>  $links_final,
+    );
+}
+
+function about_config(){
+    $nid = db_select('node', 'n')
+        ->fields('n', array('nid'))
+        ->fields('n', array('type'))
+        ->condition('n.type', 'about')
+        ->execute()
+        ->fetchCol();
+
+    $aboutNode = node_load($nid[0]);
+    $about = array();
+//    $about['title'] = $aboutNode->title;
+//    $about['page_url'] = drupal_get_path_alias('node/'.$nid[0]);
+    $about['photo'] = array();
+    $about['photo']['url'] = url('sites/default/files/'.file_uri_target($aboutNode->field_about_photo['und'][0]['uri']), array('absolute'=>true));
+    $about['photo']['alt'] = $aboutNode->field_about_photo['und'][0]['alt'];
+    $about['photo']['title'] = $aboutNode->field_about_photo['und'][0]['title'];
+//    $about['brochure_url'] = url('sites/default/files/'.file_uri_target($aboutNode->field_broshure['und'][0]['uri']), array('absolute'=>true));
+//    $about['brochure_txt'] = $aboutNode->field_broshure_button_text['und'][0]['value'];
+//    $about['pars'] = array_map('_retreive_values', $aboutNode->field_about_paragraph['und']);
+//    $vars['about'] = $about;
+    return array(
+        'title' => $aboutNode->title,
+        'page_url' => drupal_get_path_alias('node/'.$nid[0]),
+        'photo' => $about['photo'],
+        'brochure_url' => url('sites/default/files/'.file_uri_target($aboutNode->field_broshure['und'][0]['uri']), array('absolute'=>true)),
+        'brochure_txt' => $aboutNode->field_broshure_button_text['und'][0]['value'],
+        'pars' => array_map('_retreive_values', $aboutNode->field_about_paragraph['und']),
+    );
+}
+
+function welcome_config(){
+    $nid = db_select('node', 'n')
+        ->fields('n', array('nid'))
+        ->fields('n', array('type'))
+        ->condition('n.type', 'welcome')
+        ->execute()
+        ->fetchCol();
+
+    $welcomeNode = node_load($nid[0]);
+//    $welcome = array();
+//    $welcome['title'] = $welcomeNode->title;
+//    $welcome['content'] = $welcomeNode->body[LANGUAGE_NONE][0]['value'];
+//    $welcome['features_title'] = $welcomeNode->field_features_title[LANGUAGE_NONE][0]['value'];
+    $onlyTaxValues = array_map('_retreive_tid', array_values($welcomeNode->field_features[LANGUAGE_NONE]));
+//    $onlyTaxValues = array_column(array_values($welcomeNode->field_features[LANGUAGE_NONE]), 'tid');
+    $feature_taxonomy = taxonomy_term_load_multiple($onlyTaxValues);
+    $feature_tax_values = array_map("_retreive_features", $feature_taxonomy);
+//    $welcome['feature_items'] = array_values($feature_tax_values);
+    return array(
+        'welcome_title' => $welcomeNode->title,
+        'welcome_content' =>  $welcomeNode->body[LANGUAGE_NONE][0]['value'],
+        'features_title' =>  $welcomeNode->field_features_title[LANGUAGE_NONE][0]['value'],
+        'features_items' => array_values($feature_tax_values),
+    );
+}
+
+function footer_logo_config(){
+    $logoFile = file_load(variable_get('footer_logo_image_fid'));
+    $logo_url = url('sites/default/files/'.file_uri_target($logoFile->uri), array('absolute'=>true));
+    $social_links = array();
+    $social_links[0] = array();
+    $social_links[0]['url'] = variable_get('builder_social_url_one');
+    $social_links[0]['icon'] = variable_get('builder_social_icon_one');
+    $social_links[1] = array();
+    $social_links[1]['url'] = variable_get('builder_social_url_two');
+    $social_links[1]['icon'] = variable_get('builder_social_icon_two');
+    $social_links[2] = array();
+    $social_links[2]['url'] = variable_get('builder_social_url_three');
+    $social_links[2]['icon'] = variable_get('builder_social_icon_three');
+    $social_links[3] = array();
+    $social_links[3]['url'] = variable_get('builder_social_url_four');
+    $social_links[3]['icon'] = variable_get('builder_social_icon_four');
+    $social_links[4] = array();
+    $social_links[4]['url'] = variable_get('builder_social_url_five');
+    $social_links[4]['icon'] = variable_get('builder_social_icon_five');
+    $social_links[5] = array();
+    $social_links[5]['url'] = variable_get('builder_social_url_six');
+    $social_links[5]['icon'] = variable_get('builder_social_icon_six');
+    $social_links[6] = array();
+    $social_links[6]['url'] = variable_get('builder_social_url_seven');
+    $social_links[6]['icon'] = variable_get('builder_social_icon_seven');
+    $social_links[7] = array();
+    $social_links[7]['url'] = variable_get('builder_social_url_eight');
+    $social_links[7]['icon'] = variable_get('builder_social_icon_eight');
+    $social_links[8] = array();
+    $social_links[8]['url'] = variable_get('builder_social_url_nine');
+    $social_links[8]['icon'] = variable_get('builder_social_icon_nine');
+    $social_links[9] = array();
+    $social_links[9]['url'] = variable_get('builder_social_url_ten');
+    $social_links[9]['icon'] = variable_get('builder_social_icon_ten');
+    $social_links[10] = array();
+    $social_links[10]['url'] = variable_get('builder_social_url_eleven');
+    $social_links[10]['icon'] = variable_get('builder_social_icon_eleven');
+    $social_links[11] = array();
+    $social_links[11]['url'] = variable_get('builder_social_url_twelve');
+    $social_links[11]['icon'] = variable_get('builder_social_icon_twelve');
+    $social_links[12] = array();
+    $social_links[12]['url'] = variable_get('builder_social_url_thirteen');
+    $social_links[12]['icon'] = variable_get('builder_social_icon_thirteen');
+    $social_links[13] = array();
+    $social_links[13]['url'] = variable_get('builder_social_url_fourteen');
+    $social_links[13]['icon'] = variable_get('builder_social_icon_fourteen');
+
+    return array(
+        'logo_url' => $logo_url,
+        'social_links' => $social_links,
+    );
+}
+
+function builder_theme_block_configure($delta='') {
+    $form = array();
+
+    switch($delta) {
+        case 'twitter_feed' :
+            // Text field form element
+            $form['builder_twitter_title'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Title of Twitter Feed'),
+                '#default_value' => variable_get('builder_twitter_title', ''),
+            );
+            $form['builder_twitter_invite'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Enter twitter invite description displayed next to tweets'),
+                '#default_value' => variable_get('builder_twitter_invite', ''),
+            );
+            break;
+        case 'call_for_action':
+            $form['call_action_title'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Title for call of action'),
+                '#default_value' => variable_get('call_action_title', ''),
+            );
+            $form['call_action_content'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Content for call of action'),
+                '#default_value' => variable_get('call_action_content', ''),
+            );
+            $form['call_action_button'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Button text'),
+                '#default_value' => variable_get('call_action_button', ''),
+            );
+            $form['call_action_url'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Url for the button'),
+                '#default_value' => variable_get('call_action_url', ''),
+            );
+            break;
+        case 'pay_attention':
+            $form['pay_attention_title'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Title'),
+                '#default_value' => variable_get('pay_attention_title', ''),
+            );
+            $form['pay_attention_call_action'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Call for action statement'),
+                '#default_value' => variable_get('pay_attention_call_action', ''),
+            );
+            $form['pay_attention_content'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Content for pay attention sidebar block'),
+                '#default_value' => variable_get('pay_attention_content', ''),
+            );
+
+            break;
+        case 'copy_rights' :
+            // Text field form element
+            $form['copy_rights_message'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Enter copy rights message (html is allowed)'),
+                '#default_value' => variable_get('copy_rights_message', ''),
+            );
+            break;
+        case 'contact_info' :
+            // Text field form element
+            $form['contact_info_title'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Title of Contact Info'),
+                '#default_value' => variable_get('contact_info_title', ''),
+            );
+            $form['contact_info_phone'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Phone'),
+                '#default_value' => variable_get('contact_info_phone', ''),
+            );
+            $form['contact_info_email'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Email'),
+                '#default_value' => variable_get('contact_info_email', ''),
+            );
+            $form['contact_info_address'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Address'),
+                '#default_value' => variable_get('contact_info_address', ''),
+            );
+            break;
+        case 'footer_company' :
+            // Text field form element
+            $form['builder_company_title'] = array(
+                '#type' => 'textfield',
+                '#prefix' => t('Title of Company Block'),
+                '#default_value' => variable_get('builder_company_title', ''),
+            );
+            $form['builder_company_description'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Enter description of company'),
+                '#default_value' => variable_get('builder_company_description', ''),
+            );
+            break;
+        case 'catchy_phrase' :
+            // Text field form element
+            $form['catchy_phrase'] = array(
+                '#type' => 'textarea',
+                '#rows' => '3',
+                '#title' => t('Your most important message or catchy phrase goes here'),
+                '#default_value' => variable_get('catchy_phrase', ''),
+            );
+            break;
+        case 'footer_logo' :
+            // File selection form element
+            $form['footer_logo'] = array(
+                '#name' => 'block_image',
+                '#type' => 'managed_file',
+                '#title' => t('Choose Footer Logo'),
+                '#description' => t('Select an Image for the footer logo.  Only *.gif, *.png, *.jpg, and *.jpeg images allowed.'),
+                '#default_value' => variable_get('footer_logo_image_fid', ''),
+                '#upload_location' => 'public://',
+                '#upload_validators' => array(
+                    'file_validate_extensions' => array('gif png jpg jpeg'),
+                ),
+            );
+            $form['social_one'] = array(
+                '#title' => 'Social Link One',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => FALSE,
+            );
+            $form['social_one']['url_one'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_one', ''),
+
+            );
+            $form['social_one']['icon_one'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_one', ''),
+            );
+
+            $form['social_two'] = array(
+                '#title' => 'Social Link Two',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                          ':input[name="url_one"]' => array('filled' => TRUE),
+                     ),
+                ),
+            );
+            $form['social_two']['url_two'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_two', ''),
+
+            );
+            $form['social_two']['icon_two'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_two', ''),
+            );
+
+            $form['social_three'] = array(
+                '#title' => 'Social Link Three',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_two"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_three']['url_three'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_three', ''),
+
+            );
+            $form['social_three']['icon_three'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_three', ''),
+            );
+
+
+            $form['social_four'] = array(
+                '#title' => 'Social Link Four',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_three"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_four']['url_four'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_four', ''),
+
+            );
+            $form['social_four']['icon_four'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_four', ''),
+            );
+
+            $form['social_five'] = array(
+                '#title' => 'Social Link Five',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_four"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_five']['url_five'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_five', ''),
+
+            );
+            $form['social_five']['icon_five'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_five', ''),
+            );
+
+            $form['social_six'] = array(
+                '#title' => 'Social Link Six',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_five"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_six']['url_six'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_six', ''),
+
+            );
+            $form['social_six']['icon_six'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_six', ''),
+            );
+
+
+            $form['social_seven'] = array(
+                '#title' => 'Social Link Seven',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_six"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_seven']['url_seven'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_seven', ''),
+
+            );
+            $form['social_seven']['icon_seven'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_seven', ''),
+            );
+
+            $form['social_eight'] = array(
+                '#title' => 'Social Link One',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_seven"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_eight']['url_eight'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_eight', ''),
+
+            );
+            $form['social_eight']['icon_eight'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_eight', ''),
+            );
+
+            $form['social_nine'] = array(
+                '#title' => 'Social Link Nine',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_eight"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_nine']['url_nine'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_nine', ''),
+
+            );
+            $form['social_nine']['icon_nine'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_nine', ''),
+            );
+
+            $form['social_ten'] = array(
+                '#title' => 'Social Link Ten',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_nine"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_ten']['url_ten'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_ten', ''),
+
+            );
+            $form['social_ten']['icon_ten'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_ten', ''),
+            );
+
+            $form['social_eleven'] = array(
+                '#title' => 'Social Link Eleven',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_ten"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_eleven']['url_eleven'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_eleven', ''),
+
+            );
+            $form['social_eleven']['icon_eleven'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_eleven', ''),
+            );
+
+            $form['social_twelve'] = array(
+                '#title' => 'Social Link Twelve',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_eleven"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_twelve']['url_twelve'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_twelve', ''),
+
+            );
+            $form['social_twelve']['icon_twelve'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_twelve', ''),
+            );
+
+            $form['social_thirteen'] = array(
+                '#title' => 'Social Link Thirteen',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_twelve"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_thirteen']['url_thirteen'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_thirteen', ''),
+
+            );
+            $form['social_thirteen']['icon_thirteen'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_thirteen', ''),
+            );
+
+            $form['social_fourteen'] = array(
+                '#title' => 'Social Link Fourteen',
+                '#type' => 'fieldset',
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#states' => array(
+                    'visible' => array(
+                        ':input[name="url_thirteen"]' => array('filled' => TRUE),
+                    ),
+                ),
+            );
+            $form['social_fourteen']['url_fourteen'] = array(
+                '#title' => t(''),
+                '#type' => 'textfield',
+                '#field_prefix' => t('Url'),
+                '#field_suffix' => t('(i.e. http://facebook)'),
+                '#default_value' => variable_get('builder_social_url_fourteen', ''),
+
+            );
+            $form['social_fourteen']['icon_fourteen'] = array(
+                '#title' => t(''),
+                '#field_prefix' => t('Icon'),
+                '#field_suffix' => htmlentities('(i.e. <div class="icon_facebook"></div>)'),
+                '#type' => 'textfield',
+                '#default_value' => variable_get('builder_social_icon_fourteen', ''),
+            );
+            break;
+    }
+    return $form;
+}
+
+function builder_theme_block_save($delta = '', $edit = array()) {
+    switch($delta) {
+        case 'twitter_feed' :
+            variable_set('builder_twitter_invite', $edit['builder_twitter_invite']);
+            variable_set('builder_twitter_title', $edit['builder_twitter_title']);
+            break;
+        case 'footer_company' :
+            variable_set('builder_company_description', $edit['builder_company_description']);
+            variable_set('builder_company_title', $edit['builder_company_title']);
+            break;
+        case 'contact_info' :
+            variable_set('contact_info_title', $edit['contact_info_title']);
+            variable_set('contact_info_phone', $edit['contact_info_phone']);
+            variable_set('contact_info_email', $edit['contact_info_email']);
+            variable_set('contact_info_address', $edit['contact_info_address']);
+            break;
+        case 'copy_rights' :
+            variable_set('copy_rights_message', $edit['copy_rights_message']);
+            break;
+        case 'catchy_phrase' :
+            variable_set('catchy_phrase', $edit['catchy_phrase']);
+            break;
+        case 'call_for_action':
+            variable_set('call_action_title', $edit['call_action_title']);
+            variable_set('call_action_content', $edit['call_action_content']);
+            variable_set('call_action_button', $edit['call_action_button']);
+            variable_set('call_action_url', $edit['call_action_url']);
+            break;
+        case 'pay_attention':
+            variable_set('pay_attention_title', $edit['pay_attention_title']);
+            variable_set('pay_attention_content', $edit['pay_attention_content']);
+            variable_set('pay_attention_call_action', $edit['pay_attention_call_action']);
+            break;
+        case 'footer_logo' :
+            // Saving the file, setting it to a permanent state, setting a FID variable
+            $file = file_load($edit['footer_logo']);
+            $file->status = FILE_STATUS_PERMANENT;
+            file_save($file);
+            $block = block_load('builder_theme', $delta);
+            file_usage_add($file, 'builder_theme', 'block', $block->bid);
+            variable_set('footer_logo_image_fid', $file->fid);
+
+            variable_set('builder_social_url_one', $edit['url_one']);
+            variable_set('builder_social_icon_one', $edit['icon_one']);
+
+            variable_set('builder_social_url_two', $edit['url_two']);
+            variable_set('builder_social_icon_two', $edit['icon_two']);
+
+            variable_set('builder_social_url_three', $edit['url_three']);
+            variable_set('builder_social_icon_three', $edit['icon_three']);
+
+            variable_set('builder_social_url_four', $edit['url_four']);
+            variable_set('builder_social_icon_four', $edit['icon_four']);
+
+            variable_set('builder_social_url_five', $edit['url_five']);
+            variable_set('builder_social_icon_five', $edit['icon_five']);
+
+            variable_set('builder_social_url_six', $edit['url_six']);
+            variable_set('builder_social_icon_six', $edit['icon_six']);
+
+            variable_set('builder_social_url_seven', $edit['url_seven']);
+            variable_set('builder_social_icon_seven', $edit['icon_seven']);
+
+            variable_set('builder_social_url_eight', $edit['url_eight']);
+            variable_set('builder_social_icon_eight', $edit['icon_eight']);
+
+            variable_set('builder_social_url_nine', $edit['url_nine']);
+            variable_set('builder_social_icon_nine', $edit['icon_nine']);
+
+            variable_set('builder_social_url_ten', $edit['url_ten']);
+            variable_set('builder_social_icon_ten', $edit['icon_ten']);
+
+            variable_set('builder_social_url_eleven', $edit['url_eleven']);
+            variable_set('builder_social_icon_eleven', $edit['icon_eleven']);
+
+            variable_set('builder_social_url_twelve', $edit['url_twelve']);
+            variable_set('builder_social_icon_twelve', $edit['icon_twelve']);
+
+            variable_set('builder_social_url_thirteen', $edit['url_thirteen']);
+            variable_set('builder_social_icon_thirteen', $edit['icon_thirteen']);
+
+            variable_set('builder_social_url_fourteen', $edit['url_fourteen']);
+            variable_set('builder_social_icon_fourteen', $edit['icon_fourteen']);
+
+            break;
+    }
+}

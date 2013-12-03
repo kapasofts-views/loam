@@ -2,3 +2,29 @@
  * This file should get overwritten if Method 1 is used. If Method 2 is chosen,
  * remove this comment and start adding your styles to this file.
  */
+#nabar{
+    z-index: 16;
+}
+
+
+.page_head .menu .active-trail {
+    background: rgb(174, 199, 30);
+    color: white;
+}
+
+.page_head .menu li.active-trail a:hover{
+    background: rgb(174, 199, 30);
+}
+
+ul.breadcrumb{
+    background-color: transparent;
+    padding:0px;
+}
+
+li.small a{
+    font-size: 10px;
+}
+/*****float span3*****/
+.span3.no-left-margin{
+    margin-left: 0;
+}
