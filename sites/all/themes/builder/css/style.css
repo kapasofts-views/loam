@@ -28,3 +28,21 @@ li.small a{
 .span3.no-left-margin{
     margin-left: 0;
 }
+
+ul.builder-pager{
+    /*text-align: center;*/
+    list-style: none;
+}
+
+ul.builder-pager li{
+    display: inline;
+}
+
+ul.builder-pager .current{
+    padding:0px;
+    margin:0px;
+}
+
+li.current a{
+    background-color: #AEC71E;
+}

@@ -101,3 +101,15 @@ scripts[] = 'js/bootstrap.min.js'
 ; ;settings[toggle_search] = 1
 ; ;settings[cdn_bootstrap] = 1
 ; ;settings[bootstrap_cdn] = 3.0.2
+
+
+;post to have left sidebar has to be with path 'post-ls/*'. There are two context one for right post sidebar and
+;one for left sidebar each configuring each of the sidebars
+
+
+
+;@TODO
+;1.Video Block
+;2.Category Block for Blog
+;3.Tag cloud for Blog
+;4

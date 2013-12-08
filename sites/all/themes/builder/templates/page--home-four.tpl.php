@@ -38,6 +38,22 @@
     </div>
 </div>
 
+<div class="tag_line">
+    <div class="container">
+
+        <div class="row">
+            <div class="span12">
+                <?php if (!empty($site_slogan)): ?>
+                    <div class="welcome">
+                        <h3><?php print $site_slogan; ?></h3>
+                    </div>
+                <?php endif; ?>
+                <?php print render($page['header']); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php print render($page['row_zero']); ?>
 
 <div class="main_content_area">

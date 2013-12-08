@@ -5,14 +5,45 @@
  */
 /*********Page*********/
 function builder_preprocess_page(&$vars){
-    $type = $vars['node']->type;
-    $vars['theme_hook_suggestions'][] = 'page__'. $type;
-    $node = $vars['node'];
+    $node = (isset($vars['node'])) ? $vars['node'] : (object) array('type'=>'default') ;
+    $type = $node->type;
+    if($type == 'blog'){
+        switch($node->field_sidebar_positioning['und'][0]['taxonomy_term']->name){
+            case 'left':
+                $vars['theme_hook_suggestions'][] = 'page__'. $type.'_left';
+                break;
+            case 'none':
+                $vars['theme_hook_suggestions'][] = 'page__'. $type.'_without_sidebar';
+                break;
+            default:
+                $vars['theme_hook_suggestions'][] = 'page__'. $type;
+        }
+
+    }else{
+        $vars['theme_hook_suggestions'][] = 'page__'. $type;
+    }
+    $rel_path = $_GET['q'];
+    $breadcrumb = drupal_get_breadcrumb();
+    if($rel_path == 'blog'){
+        //teaser for posts
+        $node->title = 'All Posts';
+        $breadcrumb[] = $node->title;
+        drupal_set_breadcrumb($breadcrumb);
+    }elseif(($startPos = strpos($rel_path, 'blog/')) !== false){
+        $userId = substr($rel_path, $startPos + 5);
+        $user = user_load($userId);
+        $node->title = $user->name."'s Blog";
+        $breadcrumb[] = $node->title;
+        drupal_set_breadcrumb($breadcrumb);
+    }
+    $vars['node'] = $node;
+
+
     switch($type){
         case 'home_five':
         case 'home_two':
         case 'home_one':
-        case 'home_thre':
+        case 'home_three':
             //REVOLUTION BANNER CSS SETTINGS
             drupal_add_css(drupal_get_path('theme',$GLOBALS['theme']) .'/rs-plugin/css/responsive.css', array('group' => CSS_THEME - 1,'media' => 'screen', 'type' => 'file'));
             drupal_add_css(drupal_get_path('theme',$GLOBALS['theme']) .'/rs-plugin/css/settings.css', array('group' => CSS_THEME - 1,'media' => 'screen','type' => 'file'));
@@ -138,6 +169,10 @@ function builder_preprocess_page(&$vars){
             $vars['error_title'] = $node->title;
             $vars['page_description'] = $node->field_description[LANGUAGE_NONE][0]['value'];
             break;
+        case 'blog_right_sidebar':
+        case 'blog_right_sidebar_small':
+        case 'blog_left_sidebar_small':
+        case 'blog_left_sidebar':
         case 'right_sidebar':
         case 'both_sidebar':
         case 'left_sidebar':
@@ -150,9 +185,9 @@ function builder_preprocess_page(&$vars){
             drupal_add_css(drupal_get_path('theme',$GLOBALS['theme']) .'/css/prettyPhoto.css', array('group' => CSS_THEME + 1,'media' => 'screen', 'type' => 'file'));
             drupal_add_css(drupal_get_path('theme',$GLOBALS['theme']) .'/css/style.css', array('group' => CSS_THEME + 1, 'type' => 'file'));
 
-            $vars['pars'] = array_map('_retreive_values', $node->field_content_par[LANGUAGE_NONE]);
-            $vars['sidebar_img'] = url('sites/default/files/'.file_uri_target($node->field_content_image[LANGUAGE_NONE][0]['uri']), array('absolute'=>true));
-            $vars['sidebar_img_alt'] = $node->field_content_image[LANGUAGE_NONE][0]['alt'];
+            $vars['pars'] = (!empty($node->field_content_par[LANGUAGE_NONE])) ? array_map('_retreive_values', $node->field_content_par[LANGUAGE_NONE]) : '';
+            $vars['sidebar_img'] = (!empty($node->field_content_image[LANGUAGE_NONE][0]['uri'])) ? url('sites/default/files/'.file_uri_target($node->field_content_image[LANGUAGE_NONE][0]['uri']), array('absolute'=>true)) : '';
+            $vars['sidebar_img_alt'] = (!empty($node->field_content_image[LANGUAGE_NONE][0]['alt'])) ? $node->field_content_image[LANGUAGE_NONE][0]['alt'] : '';
             $vars['page_description'] = $node->field_description[LANGUAGE_NONE][0]['value'];
             break;
         default:
@@ -196,6 +231,25 @@ function builder_preprocess_block(&$vars){
             $vars['theme_hook_suggestions'][] = 'block__view_services_overview';
             break;
         case 'block-block-1':
+            break;
+    }
+
+}
+
+/*******Node********/
+function builder_preprocess_node(&$vars){
+
+    switch($vars['type']){
+        case 'blog':
+            if($vars['view_mode'] == 'teaser'){
+                //blog with multiple posts(all or per author)
+                $vars['theme_hook_suggestions'][] = 'node__post_list';
+            }elseif($vars['node']->field_sidebar_positioning['und'][0]['taxonomy_term']->name == 'none'){
+                    //post configured without any sidebar
+                    $vars['theme_hook_suggestions'][] = 'node__post_full';
+            }
+            $vars['profile_photo'] = ($vars['picture']) ? image_style_url("medium", file_load($vars['picture'])->uri) : base_path().path_to_theme().'/images/gallery/avatar-2.png' ;
+
             break;
     }
 
@@ -285,4 +339,132 @@ function builder_breadcrumb($variables) {
 
         return $breadcrumbs;
     }
+}
+
+function builder_pager($variables) {
+    $output = "";
+    $tags = $variables['tags'];
+    $element = $variables['element'];
+    $parameters = $variables['parameters'];
+    $quantity = $variables['quantity'];
+
+    global $pager_page_array, $pager_total;
+
+    // Calculate various markers within this pager piece:
+    // Middle is used to "center" pages around the current page.
+    $pager_middle = ceil($quantity / 2);
+    // current is the page we are currently paged to
+    $pager_current = $pager_page_array[$element] + 1;
+    // first is the first page listed by this pager piece (re quantity)
+    $pager_first = $pager_current - $pager_middle + 1;
+    // last is the last page listed by this pager piece (re quantity)
+    $pager_last = $pager_current + $quantity - $pager_middle;
+    // max is the maximum page number
+    $pager_max = $pager_total[$element];
+    // End of marker calculations.
+
+    // Prepare for generation loop.
+    $i = $pager_first;
+    if ($pager_last > $pager_max) {
+        // Adjust "center" if at end of query.
+        $i = $i + ($pager_max - $pager_last);
+        $pager_last = $pager_max;
+    }
+    if ($i <= 0) {
+        // Adjust "center" if at start of query.
+        $pager_last = $pager_last + (1 - $i);
+        $i = 1;
+    }
+
+    // End of generation loop preparation.
+    $li_first = theme('pager_first', array('text' => (isset($tags[0]) ? $tags[0] : t('first')), 'element' => $element, 'parameters' => $parameters));
+    $li_previous = theme('pager_previous', array('text' => (isset($tags[1]) ? $tags[1] : t('previous')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
+    $li_next = theme('pager_next', array('text' => (isset($tags[3]) ? $tags[3] : t('next')), 'element' => $element, 'interval' => 1, 'parameters' => $parameters));
+    $li_last = theme('pager_last', array('text' => (isset($tags[4]) ? $tags[4] : t('last')), 'element' => $element, 'parameters' => $parameters));
+
+    if ($pager_total[$element] > 1) {
+        /*
+        if ($li_first) {
+          $items[] = array(
+            'class' => array('pager-first'),
+            'data' => $li_first,
+          );
+        }
+        */
+        if ($li_previous) {
+            $items[] = array(
+                'class' => array('prev'),
+                'data' => $li_previous,
+            );
+        }
+
+        // When there is more than one page, create the pager list.
+        if ($i != $pager_max) {
+            if ($i > 1) {
+                $items[] = array(
+//                    'class' => array('pager-ellipsis', 'disabled'),
+                    'data' => '<span>…</span>',
+                );
+            }
+            // Now generate the actual pager piece.
+            for (; $i <= $pager_last && $i <= $pager_max; $i++) {
+                if ($i < $pager_current) {
+                    $items[] = array(
+                         'class' => array('page-numbers'),
+                        'data' => theme('pager_previous', array('text' => $i, 'element' => $element, 'interval' => ($pager_current - $i), 'parameters' => $parameters)),
+                    );
+                }
+                if ($i == $pager_current) {
+                    $items[] = array(
+                        'class' => array('current', 'page-numbers'), // Add the active class
+                        'data' => l($i, '#', array('fragment' => '','external' => TRUE)),
+                    );
+                }
+                if ($i > $pager_current) {
+                    $items[] = array(
+                        'class' => array('page-numbers'),
+                        'data' => theme('pager_next', array('text' => $i, 'element' => $element, 'interval' => ($i - $pager_current), 'parameters' => $parameters)),
+                    );
+                }
+            }
+            if ($i < $pager_max) {
+                $items[] = array(
+//                    'class' => array('pager-ellipsis', 'disabled'),
+                    'data' => '<span>…</span>',
+                );
+            }
+        }
+        // End generation.
+        if ($li_next) {
+            $items[] = array(
+                'class' => array('next', 'page-numbers'),
+                'data' => $li_next,
+            );
+        }
+        /*
+        if ($li_last) {
+          $items[] = array(
+            'class' => array('pager-last'),
+            'data' => $li_last,
+          );
+        }
+        */
+
+//        return '<div class="pagination pagination-centered">'. theme('item_list', array(
+//            'items' => $items,
+//            //'attributes' => array('class' => array('pager')),
+//        )) . '</div>';
+
+        return '<section style="padding:0px !important;">'
+                            .'<hr style="margin-top:0px;">'
+                            .'<div class="pride_pg">'
+                            . theme('item_list', array(
+                                'items' => $items,
+                                'attributes' => array('class' => array('builder-pager')),
+                            ))
+                            .'</div>'
+                            .'</section>';
+    }
+
+    return $output;
 }
