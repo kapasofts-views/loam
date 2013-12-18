@@ -1,0 +1,12 @@
+h1.logo-footer{
+    /*font-weight: 700 !important;*/
+}
+
+.lowercase{
+    text-transform:none;
+}
+
+.service-item{
+    min-height: 100px !important;
+    max-height: 100px;
+}
